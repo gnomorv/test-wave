@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bug Slayer</title>
+  <style>
+    body { margin: 0; font-family: system-ui, Arial; background:#0b1020; color:#e8ecff; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 16px; }
+    .hud { display:flex; gap:16px; align-items:center; margin-bottom: 10px; }
+    canvas { width: 100%; background: radial-gradient(circle at 30% 30%, #18244d, #0b1020); border: 1px solid rgba(255,255,255,.15); border-radius: 14px; }
+    .hint { opacity:.85; font-size: 14px; margin-top: 10px; line-height: 1.3; }
+    .pill { padding: 6px 10px; border: 1px solid rgba(255,255,255,.18); border-radius: 999px; background: rgba(255,255,255,.06); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hud">
+      <div class="pill">Score: <span id="score">0</span></div>
+      <div class="pill">Lives: <span id="lives">3</span></div>
+      <div class="pill">Wave: <span id="wave">1</span></div>
+    </div>
+
+    <canvas id="game" width="900" height="520"></canvas>
+
+    <div class="hint">
+      Controles: <b>WASD</b> o <b>Flechas</b> para moverte · <b>Espacio</b> para disparar · Toca un bug = lo “matas” (pero pierdes vida si está “enojado”).<br>
+      Tip: Ajusta la dificultad cambiando <code>BUG_SPAWN_EVERY_MS</code> y <code>BUG_SPEED</code>.
+    </div>
+  </div>
+
+  <script>
+    // ====== CONFIG ======
+    const BUG_SPAWN_EVERY_MS = 700;   // más bajo = más bugs
+    const BUG_SPEED = 1.2;            // más alto = más rápido
+    const BULLET_SPEED = 6.5;
+    const PLAYER_SPEED = 3.2;
+
+    // ====== SETUP ======
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const scoreEl = document.getElementById("score");
+    const livesEl = document.getElementById("lives");
+    const waveEl  = document.getElementById("wave");
+
+    const keys = new Set();
+    let lastShotAt = 0;
+    let lastSpawnAt = 0;
+
+    const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+    const rand = (min, max) => Math.random() * (max - min) + min;
+
+    const player = {
+      x: canvas.width * 0.5,
+      y: canvas.height * 0.5,
+      r: 16,
+      dirX: 1, dirY: 0, // dirección para disparo
+      lives: 3,
+      score: 0
+    };
+
+    const bullets = [];
+    const bugs = [];
+    let wave = 1;
+    let gameOver = false;
+
+    // ====== INPUT ======
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Space") e.preventDefault();
+      keys.add(e.code);
+
+      if (gameOver && (e.code === "Enter" || e.code === "Space")) {
+        restart();
+      }
+    });
+    window.addEventListener("keyup", (e) => keys.delete(e.code));
+
+    // ====== GAME LOGIC ======
+    function spawnBug() {
+      // spawnea desde bordes
+      const side = Math.floor(rand(0, 4));
+      let x, y;
+      if (side === 0) { x = rand(0, canvas.width); y = -20; }
+      if (side === 1) { x = canvas.width + 20; y = rand(0, canvas.height); }
+      if (side === 2) { x = rand(0, canvas.width); y = canvas.height + 20; }
+      if (side === 3) { x = -20; y = rand(0, canvas.height); }
+
+      // bug “enojado” random: si lo tocas, duele; si lo matas a distancia, no
+      const angry = Math.random() < 0.35;
+
+      bugs.push({
+        x, y,
+        r: angry ? 18 : 15,
+        angry,
+        hp: angry ? 2 : 1,
+        vx: 0, vy: 0
+      });
+    }
+
+    function shoot(now) {
+      const cooldown = 140; // ms
+      if (now - lastShotAt < cooldown) return;
+      lastShotAt = now;
+
+      const len = Math.hypot(player.dirX, player.dirY) || 1;
+      const dx = player.dirX / len;
+      const dy = player.dirY / len;
+
+      bullets.push({
+        x: player.x + dx * (player.r + 6),
+        y: player.y + dy * (player.r + 6),
+        vx: dx * BULLET_SPEED,
+        vy: dy * BULLET_SPEED,
+        r: 4
+      });
+    }
+
+    function dist(a, b) {
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    }
+
+    function step(now) {
+      if (gameOver) {
+        draw();
+        return requestAnimationFrame(step);
+      }
+
+      // Wave scaling: cada 15 puntos sube la wave y se spawnea más
+      wave = 1 + Math.floor(player.score / 15);
+      waveEl.textContent = String(wave);
+
+      // player movement
+      let mx = 0, my = 0;
+      if (keys.has("ArrowLeft") || keys.has("KeyA")) mx -= 1;
+      if (keys.has("ArrowRight") || keys.has("KeyD")) mx += 1;
+      if (keys.has("ArrowUp") || keys.has("KeyW")) my -= 1;
+      if (keys.has("ArrowDown") || keys.has("KeyS")) my += 1;
+
+      if (mx !== 0 || my !== 0) {
+        const mlen = Math.hypot(mx, my);
+        mx /= mlen; my /= mlen;
+        player.x += mx * PLAYER_SPEED;
+        player.y += my * PLAYER_SPEED;
+        player.dirX = mx; player.dirY = my;
+      }
+
+      player.x = clamp(player.x, player.r, canvas.width - player.r);
+      player.y = clamp(player.y, player.r, canvas.height - player.r);
+
+      // shooting
+      if (keys.has("Space")) shoot(now);
+
+      // spawn bugs
+      const spawnEvery = Math.max(220, BUG_SPAWN_EVERY_MS - (wave - 1) * 60);
+      if (now - lastSpawnAt > spawnEvery) {
+        lastSpawnAt = now;
+        spawnBug();
+      }
+
+      // move bullets
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        const b = bullets[i];
+        b.x += b.vx;
+        b.y += b.vy;
+        if (b.x < -30 || b.x > canvas.width + 30 || b.y < -30 || b.y > canvas.height + 30) {
+          bullets.splice(i, 1);
+        }
+      }
+
+      // move bugs (seek player)
+      for (const bug of bugs) {
+        const dx = player.x - bug.x;
+        const dy = player.y - bug.y;
+        const len = Math.hypot(dx, dy) || 1;
+        const speed = BUG_SPEED + (wave - 1) * 0.12 + (bug.angry ? 0.25 : 0);
+        bug.vx = (dx / len) * speed;
+        bug.vy = (dy / len) * speed;
+        bug.x += bug.vx;
+        bug.y += bug.vy;
+      }
+
+      // collisions: bullets vs bugs
+      for (let i = bugs.length - 1; i >= 0; i--) {
+        const bug = bugs[i];
+
+        for (let j = bullets.length - 1; j >= 0; j--) {
+          const b = bullets[j];
+          if (dist(b, bug) <= b.r + bug.r) {
+            bullets.splice(j, 1);
+            bug.hp -= 1;
+            if (bug.hp <= 0) {
+              bugs.splice(i, 1);
+              player.score += bug.angry ? 2 : 1;
+              scoreEl.textContent = String(player.score);
+            }
+            break;
+          }
+        }
+      }
+
+      // collisions: player vs bugs
+      for (let i = bugs.length - 1; i >= 0; i--) {
+        const bug = bugs[i];
+        if (dist(player, bug) <= player.r + bug.r) {
+          // “matar” al tocar siempre, pero si es angry te quita vida
+          if (bug.angry) {
+            player.lives -= 1;
+            livesEl.textContent = String(player.lives);
+          } else {
+            player.score += 1;
+            scoreEl.textContent = String(player.score);
+          }
+          bugs.splice(i, 1);
+
+          if (player.lives <= 0) {
+            gameOver = true;
+          }
+        }
+      }
+
+      draw();
+      requestAnimationFrame(step);
+    }
+
+    // ====== DRAW ======
+    function drawPlayer() {
+      // body
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, player.r, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.fill();
+
+      // visor
+      ctx.beginPath();
+      ctx.arc(player.x + player.dirX * 6, player.y + player.dirY * 6, 6, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(120,200,255,0.95)";
+      ctx.fill();
+
+      // outline
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(0,0,0,0.35)";
+      ctx.stroke();
+    }
+
+    function drawBug(bug) {
+      // simple "bug" as a circle with legs
+      ctx.save();
+      ctx.translate(bug.x, bug.y);
+
+      // legs
+      ctx.strokeStyle = "rgba(255,255,255,0.35)";
+      ctx.lineWidth = 2;
+      for (let k = 0; k < 6; k++) {
+        const ang = (Math.PI * 2) * (k / 6);
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(ang) * (bug.r * 0.7), Math.sin(ang) * (bug.r * 0.7));
+        ctx.lineTo(Math.cos(ang) * (bug.r * 1.25), Math.sin(ang) * (bug.r * 1.25));
+        ctx.stroke();
+      }
+
+      // body
+      ctx.beginPath();
+      ctx.arc(0, 0, bug.r, 0, Math.PI * 2);
+      ctx.fillStyle = bug.angry ? "rgba(255,90,120,0.9)" : "rgba(160,255,170,0.9)";
+      ctx.fill();
+
+      // eyes
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.beginPath();
+      ctx.arc(-5, -3, 2.5, 0, Math.PI * 2);
+      ctx.arc(5, -3, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // angry brow
+      if (bug.angry) {
+        ctx.strokeStyle = "rgba(0,0,0,0.55)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-10, -10); ctx.lineTo(-2, -6);
+        ctx.moveTo(10, -10); ctx.lineTo(2, -6);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // subtle stars
+      ctx.globalAlpha = 0.35;
+      for (let i = 0; i < 60; i++) {
+        const x = (i * 37) % canvas.width;
+        const y = (i * 71) % canvas.height;
+        ctx.fillRect(x, y, 1, 1);
+      }
+      ctx.globalAlpha = 1;
+
+      // bullets
+      for (const b of bullets) {
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,230,140,0.95)";
+        ctx.fill();
+      }
+
+      // bugs
+      for (const bug of bugs) drawBug(bug);
+
+      // player
+      drawPlayer();
+
+      if (gameOver) {
+        ctx.fillStyle = "rgba(0,0,0,0.55)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "rgba(255,255,255,0.95)";
+        ctx.textAlign = "center";
+        ctx.font = "bold 44px system-ui, Arial";
+        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 30);
+
+        ctx.font = "18px system-ui, Arial";
+        ctx.fillText("Press Enter or Space to restart", canvas.width / 2, canvas.height / 2 + 15);
+      }
+    }
+
+    function restart() {
+      bullets.length = 0;
+      bugs.length = 0;
+      player.x = canvas.width * 0.5;
+      player.y = canvas.height * 0.5;
+      player.dirX = 1; player.dirY = 0;
+      player.lives = 3;
+      player.score = 0;
+      scoreEl.textContent = "0";
+      livesEl.textContent = "3";
+      waveEl.textContent = "1";
+      gameOver = false;
+      lastShotAt = 0;
+      lastSpawnAt = 0;
+    }
+
+    // start
+    requestAnimationFrame(step);
+  </script>
+</body>
+</html>

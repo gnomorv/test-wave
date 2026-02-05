@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Execution Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6AC8EF;
+            --passed: #34a853;
+            --failed: #ea4335;
+            --blocked: #fbbc04;
+            --retest: #9c27b0;
+            --in-progress: #ff69b4;
+            --untested: #bdc1c6;
+            --bg: #f0f4f8;
+            --text: #202124;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: var(--primary);
+            padding: 25px 35px;
+            border-radius: 16px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(106, 200, 239, 0.3);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .btn-back {
+            background: white;
+            color: var(--primary);
+            padding: 10px 25px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-bottom: 4px solid var(--untested);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.passed {
+            border-color: var(--passed);
+        }
+
+        .stat-card.failed {
+            border-color: var(--failed);
+        }
+
+        .stat-card.blocked {
+            border-color: var(--blocked);
+        }
+
+        .stat-card.in-progress {
+            border-color: var(--in-progress);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #5f6368;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .chart-card h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #3c4043;
+            border-left: 4px solid var(--primary);
+            padding-left: 12px;
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+
+        /* Feature Table Style */
+        .feature-stats {
+            margin-top: 30px;
+        }
+
+        .feature-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-size: 14px;
+            color: #5f6368;
+            border-bottom: 2px solid #eee;
+        }
+
+        .feature-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .progress-mini {
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+            width: 100px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--passed);
+        }
+
+        @media (max-width: 900px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="dashboard-container">
+        <div class="header">
+            <div>
+                <h1 id="dashboardTitle">Test Execution Dashboard</h1>
+                <p style="opacity: 0.8; font-size: 14px; margin-top: 4px;" id="dashboardSubtitle">Visual insights for your current test cycle
+                </p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="index.html" class="btn-back" style="background: rgba(255,255,255,0.2); color: white;">
+                    <span style="font-size: 16px;">🏠</span> Projects
+                </a>
+                <a id="backToSheet" href="test_case_sheet.html" class="btn-back">
+                    <span style="font-size: 20px; line-height: 1;">←</span> Back to Test Sheet
+                </a>
+            </div>
+        </div>
+
+        <div class="summary-grid" id="summaryGrid">
+            <!-- Summary cards will be injected here -->
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h2>Status Distribution</h2>
+                <canvas id="statusChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h2>Results by Feature Area</h2>
+                <canvas id="featureChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card feature-stats">
+            <h2>Detailed Feature Progress</h2>
+            <table class="feature-table">
+                <thead>
+                    <tr>
+                        <th>Feature Module</th>
+                        <th>Total Cases</th>
+                        <th>Passed</th>
+                        <th>Failed</th>
+                        <th>% Passed</th>
+                        <th>Progress</th>
+                    </tr>
+                </thead>
+                <tbody id="featureTableBody">
+                    <!-- Feature rows will be injected here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Get project from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentProject = urlParams.get('project') || 'default';
+
+        // Project name mapping
+        const projectNames = {
+            'wiseloan': 'Wiseloan',
+            'rv-website': 'RV Website',
+            'dlc': 'DLC',
+            '360-connect': '360 Connect',
+            'cowboys': 'Cowboys',
+            'bbcom': 'BBcom'
+        };
+
+        const statusColors = {
+            'Pass': '#34a853',
+            'Fail': '#ea4335',
+            'Blocked': '#fbbc04',
+            'Re-test': '#9c27b0',
+            'In Progress': '#ff69b4',
+            'Not Run': '#bdc1c6'
+        };
+
+        async function loadDashboard() {
+            // Update header with project name
+            const projectName = projectNames[currentProject] || currentProject;
+            document.getElementById('dashboardTitle').textContent = `${projectName} - Dashboard`;
+            document.getElementById('dashboardSubtitle').textContent = `Visual insights for ${projectName} test cycle`;
+            document.getElementById('backToSheet').href = `test_case_sheet.html?project=${currentProject}`;
+            document.title = `${projectName} - Dashboard`;
+
+            let data;
+            try {
+                const response = await fetch(`/api/test-cases?projectId=${currentProject}`);
+                if (!response.ok) throw new Error('API request failed');
+                data = await response.json();
+            } catch (err) {
+                console.error('Failed to fetch from API:', err);
+                alert("Failed to load test data from database.");
+                return;
+            }
+
+            // 1. Calculate Summary Stats
+            const stats = {
+                total: data.length,
+                passed: 0,
+                failed: 0,
+                blocked: 0,
+                inProgress: 0,
+                untested: 0
+            };
+
+            const featureMap = {};
+
+            data.forEach(tc => {
+                // Update overall stats
+                if (tc.status === 'Pass') stats.passed++;
+                else if (tc.status === 'Fail') stats.failed++;
+                else if (tc.status === 'Blocked') stats.blocked++;
+                else if (tc.status === 'In Progress') stats.inProgress++;
+                else stats.untested++;
+
+                // Track by feature
+                const feat = tc.feature || 'Unknown';
+                if (!featureMap[feat]) {
+                    featureMap[feat] = { total: 0, passed: 0, failed: 0 };
+                }
+                featureMap[feat].total++;
+                if (tc.status === 'Pass') featureMap[feat].passed++;
+                if (tc.status === 'Fail') featureMap[feat].failed++;
+            });
+
+            // 2. Render Cards
+            const summaryGrid = document.getElementById('summaryGrid');
+            summaryGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value" style="color: var(--primary)">${stats.total}</div>
+                    <div class="stat-label">Total Cases</div>
+                </div>
+                <div class="stat-card passed">
+                    <div class="stat-value" style="color: var(--passed)">${stats.passed}</div>
+                    <div class="stat-label">Passed</div>
+                </div>
+                <div class="stat-card failed">
+                    <div class="stat-value" style="color: var(--failed)">${stats.failed}</div>
+                    <div class="stat-label">Failed</div>
+                </div>
+                <div class="stat-card blocked">
+                    <div class="stat-value" style="color: var(--blocked)">${stats.blocked}</div>
+                    <div class="stat-label">Blocked</div>
+                </div>
+                <div class="stat-card in-progress">
+                    <div class="stat-value" style="color: var(--in-progress)">${stats.inProgress}</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+            `;
+
+            // 3. Status Chart (Doughnut)
+            const ctxStatus = document.getElementById('statusChart').getContext('2d');
+            new Chart(ctxStatus, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Passed', 'Failed', 'Blocked', 'In Progress', 'Untested'],
+                    datasets: [{
+                        data: [stats.passed, stats.failed, stats.blocked, stats.inProgress, stats.untested],
+                        backgroundColor: [
+                            statusColors['Pass'],
+                            statusColors['Fail'],
+                            statusColors['Blocked'],
+                            statusColors['In Progress'],
+                            statusColors['Not Run']
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // 4. Feature Chart (Bar)
+            const featureLabels = Object.keys(featureMap);
+            const featurePassed = featureLabels.map(f => featureMap[f].passed);
+            const featureFailed = featureLabels.map(f => featureMap[f].failed);
+            const featureTotal = featureLabels.map(f => featureMap[f].total);
+
+            const ctxFeature = document.getElementById('featureChart').getContext('2d');
+            new Chart(ctxFeature, {
+                type: 'bar',
+                data: {
+                    labels: featureLabels,
+                    datasets: [
+                        { label: 'Passed', data: featurePassed, backgroundColor: statusColors['Pass'] },
+                        { label: 'Failed', data: featureFailed, backgroundColor: statusColors['Fail'] },
+                        { label: 'Total', data: featureTotal, backgroundColor: '#eee' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { stacked: true },
+                        y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+
+            // 5. Detailed Table
+            const tb = document.getElementById('featureTableBody');
+            featureLabels.forEach(f => {
+                const fData = featureMap[f];
+                const pct = ((fData.passed / fData.total) * 100).toFixed(0);
+                tb.innerHTML += `
+                    <tr>
+                        <td><strong>${f}</strong></td>
+                        <td>${fData.total}</td>
+                        <td style="color: var(--passed); font-weight: 600">${fData.passed}</td>
+                        <td style="color: var(--failed); font-weight: 600">${fData.failed}</td>
+                        <td>${pct}%</td>
+                        <td>
+                            <div class="progress-mini">
+                                <div class="progress-bar" style="width: ${pct}%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        window.onload = loadDashboard;
+    </script>
+</body>
+
+</html>

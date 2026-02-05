@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Case Management - Suites View</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 100%;
+            overflow-x: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            padding: 20px;
+            background: #6AC8EF;
+            color: white;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-text h1 {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .header-text p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .save-status {
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Filter Bar Styles */
+        .filter-bar {
+            padding: 15px 20px;
+            background: #f1f3f4;
+            border-bottom: 1px solid #dadce0;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-bar label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #5f6368;
+        }
+
+        .filter-bar select,
+        .filter-bar input {
+            padding: 6px 10px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .filter-bar input[type="text"] {
+            width: 200px;
+        }
+
+        .filter-bar button {
+            padding: 4px 10px;
+            background: #fff;
+            border: 1px solid #dadce0;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #1a73e8;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .filter-bar button:hover {
+            background: #f8f9fa;
+            border-color: #1a73e8;
+        }
+
+        .filter-bar button.primary {
+            background: #dae2e5;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+        }
+
+        .filter-bar button.primary:hover {
+            background: #ced6da;
+        }
+
+        .filter-bar select,
+        .filter-bar input {
+            padding: 4px 8px;
+            border: 1px solid #dadce0;
+            border-radius: 20px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        /* Edit Mode Toggle Styles in Filter Bar */
+        .edit-toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 10px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #1a73e8;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(20px);
+        }
+
+        .edit-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #5f6368;
+        }
+
+        /* Editing Active Indicator */
+        body.editing-active .editable-cell:hover {
+            border-color: #fbc02d;
+            background: #fffdf0;
+            border-style: dashed;
+        }
+
+        body.editing-active .editable-cell:focus {
+            background: white;
+            outline: 2px solid #1a73e8;
+            border-style: solid;
+            z-index: 10;
+        }
+
+        .record-count {
+            margin-left: auto;
+            font-size: 13px;
+            color: #5f6368;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            background: #f1f3f4;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid #dadce0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 10px 8px;
+            border: 1px solid #dadce0;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        tr:hover {
+            background: #e8f0fe;
+        }
+
+        tr.selected {
+            background: #e8f0fe !important;
+        }
+
+        tr.active-testing {
+            background: #fff9c4 !important;
+            outline: 2px solid #fbc02d;
+            outline-offset: -2px;
+            z-index: 5;
+        }
+
+        .tc-id {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #1a73e8;
+            white-space: nowrap;
+            position: relative;
+            vertical-align: top;
+        }
+
+        .delete-row-btn {
+            display: none;
+            cursor: pointer;
+            color: #bdc1c6;
+            font-size: 14px;
+            transition: all 0.2s;
+            padding: 2px 5px;
+            border-radius: 4px;
+            vertical-align: middle;
+            margin-left: 2px;
+        }
+
+        .delete-row-btn:hover {
+            color: #ea4335;
+            background: rgba(234, 67, 53, 0.1);
+            transform: scale(1.1);
+        }
+
+        body.editing-active .delete-row-btn {
+            display: inline-block;
+        }
+
+        .feature-area {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .feature-subscription {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .feature-workout {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .feature-social {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .feature-shopping {
+            background: #f3e5f5;
+            color: #6a1b9a;
+        }
+
+        .feature-account {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        .feature-tracking {
+            background: #e0f2f1;
+            color: #00695c;
+        }
+
+        .priority {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            min-width: 45px;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .p0 {
+            background-color: #ea4335;
+        }
+
+        .p1 {
+            background-color: #fb8c00;
+        }
+
+        .p2 {
+            background-color: #1a73e8;
+        }
+
+        .p3 {
+            background-color: #34a853;
+        }
+
+        /* Status Select Styles (Chip style) */
+        .status-select {
+            width: auto;
+            min-width: 85px;
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            outline: none;
+            text-align: center;
+            appearance: none;
+            -webkit-appearance: none;
+            color: white;
+        }
+
+        .status-select[data-status="Pass"] {
+            background-color: #34a853;
+        }
+
+        .status-select[data-status="Fail"] {
+            background-color: #ea4335;
+        }
+
+        .status-select[data-status="Blocked"] {
+            background-color: #fbbc04;
+        }
+
+        .status-select[data-status="Re-test"] {
+            background-color: #9c27b0;
+        }
+
+        .status-select[data-status="In Progress"] {
+            background-color: #ff69b4;
+        }
+
+        .status-select[data-status="Not Run"] {
+            background-color: #bdc1c6;
+        }
+
+        /* Suite Grouping Styles */
+        .suite-header {
+            background-color: #f1f3f4 !important;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .suite-header:hover {
+            background-color: #e8eaed !important;
+        }
+
+        .suite-header td {
+            font-weight: 700;
+            color: #202124;
+            padding: 12px 15px !important;
+            font-size: 14px;
+            border-bottom: 1.5px solid #dadce0;
+            vertical-align: middle;
+        }
+
+        .suite-toggle-icon {
+            display: inline-block;
+            width: 20px;
+            transition: transform 0.2s;
+            font-style: normal;
+        }
+
+        .suite-collapsed .suite-toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .suite-count {
+            float: right;
+            font-weight: normal;
+            font-size: 11px;
+            color: #5f6368;
+            background: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            border: 1px solid #dadce0;
+            margin-top: 1px;
+        }
+
+        .steps,
+        .test-data,
+        .expected,
+        .actual,
+        .preconditions {
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        b {
+            font-weight: 700;
+            color: #202124;
+        }
+
+        .notes {
+            font-size: 12px;
+            color: #5f6368;
+        }
+
+        .checkbox-cell {
+            text-align: center;
+            width: 40px;
+        }
+
+        input[type="checkbox"] {
+            cursor: pointer;
+        }
+
+        tbody tr {
+            cursor: pointer;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            color: #202124;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #5f6368;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #3c4043;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #6AC8EF;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .btn-cancel {
+            background: #f1f3f4;
+            color: #3c4043;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-save {
+            background: #6AC8EF;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(106, 200, 239, 0.3);
+        }
+
+        .btn-add-test {
+            background: #6AC8EF;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-add-test:hover {
+            background: #5ab8df;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-text">
+                <h1>Test Case Management (Suites View)</h1>
+                <p>Organized by Feature Area Groups (Collapsible)</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <a href="test_case_sheet.html" style="
+                    background: rgba(255,255,255,0.1);
+                    color: white;
+                    text-decoration: none;
+                    padding: 8px 15px;
+                    border-radius: 30px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    border: 1px solid rgba(255,255,255,0.3);
+                    display: flex; align-items: center; gap: 6px;
+                ">📄 Back to List</a>
+                <a href="test_case_dashboard.html" style="
+                    background: white;
+                    color: #6AC8EF;
+                    text-decoration: none;
+                    padding: 8px 20px;
+                    border-radius: 30px;
+                    font-size: 14px;
+                    font-weight: 700;
+                    transition: all 0.2s;
+                    display: flex; align-items: center; gap: 8px;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+                " onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(0,0,0,0.1)'">📈
+                    View Dashboard</a>
+                <div id="saveStatus" class="save-status">Auto-saved to browser</div>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label>Search:</label>
+                <input type="text" id="searchInput" placeholder="Search ID, Title, etc...">
+            </div>
+            <div class="filter-group">
+                <label>Feature:</label>
+                <select id="featureFilter">
+                    <option value="all">All Features</option>
+                    <option value="Subscription">Subscription</option>
+                    <option value="Workout">Workout</option>
+                    <option value="Social">Social</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Account">Account</option>
+                    <option value="Tracking">Tracking</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Priority:</label>
+                <select id="priorityFilter">
+                    <option value="all">All Priorities</option>
+                    <option value="P0">P0</option>
+                    <option value="P1">P1</option>
+                    <option value="P2">P2</option>
+                    <option value="P3">P3</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Status:</label>
+                <select id="statusFilter">
+                    <option value="all">All Statuses</option>
+                    <option value="Pass">Passed</option>
+                    <option value="Fail">Failed</option>
+                    <option value="Blocked">Retest</option>
+                    <option value="Re-test">Re-test</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Not Run">Untested</option>
+                </select>
+            </div>
+            <button onclick="resetFilters()">Reset Filters</button>
+            <div class="edit-toggle-group">
+                <label class="switch">
+                    <input type="checkbox" id="editModeToggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="edit-label">Edit Mode</span>
+            </div>
+            <button class="btn-add-test" onclick="openModal()" style="margin-right: 10px;">
+                <span>+</span> Add Test
+            </button>
+            <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+                <input type="file" id="jsonFileInput" accept=".json" style="display: none;"
+                    onchange="handleJSONSelect(event)">
+                <button onclick="document.getElementById('jsonFileInput').click()" style="
+                    background: none;
+                    border: 1px solid #dadce0;
+                    color: #5f6368;
+                    font-size: 11px;
+                    padding: 4px 10px;
+                    font-weight: 500;
+                    opacity: 0.8;
+                    border-radius: 20px;
+                    cursor: pointer;
+                " onmouseover="this.style.opacity='1'; this.style.borderColor='#1a73e8'; this.style.color='#1a73e8'"
+                    onmouseout="this.style.opacity='0.8'; this.style.borderColor='#dadce0'; this.style.color='#5f6368'">
+                    📥 Import JSON
+                </button>
+                <div style="width: 1px; height: 16px; background: #dadce0; margin: 0 4px;"></div>
+                <button class="primary" onclick="exportData()" title="Export all test cases as a JSON file" style="
+                    background: none;
+                    border: 1px solid #dadce0;
+                    color: #5f6368;
+                    font-size: 11px;
+                    padding: 4px 10px;
+                    font-weight: 500;
+                    opacity: 0.8;
+                    border-radius: 20px;
+                    cursor: pointer;
+                " onmouseover="this.style.opacity='1'; this.style.borderColor='#1a73e8'; this.style.color='#1a73e8'"
+                    onmouseout="this.style.opacity='0.8'; this.style.borderColor='#dadce0'; this.style.color='#5f6368'">
+                    💾 Export JSON
+                </button>
+            </div>
+        </div>
+
+        <!-- Add Test Modal -->
+        <div id="addModal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Add New Test Case</h2>
+                    <button class="close-modal" onclick="closeModal()">&times;</button>
+                </div>
+                <div id="modalForm">
+                    <div class="form-group">
+                        <label>Test Case ID</label>
+                        <input type="text" id="newTcId" placeholder="e.g. TC-ACC-001">
+                    </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="newTcTitle" placeholder="Brief descriptive title">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Feature Area</label>
+                            <select id="newTcFeature">
+                                <option value="Subscription">Subscription</option>
+                                <option value="Workout">Workout</option>
+                                <option value="Social">Social</option>
+                                <option value="Shopping">Shopping</option>
+                                <option value="Account">Account</option>
+                                <option value="Tracking">Tracking</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Priority</label>
+                            <select id="newTcPriority">
+                                <option value="P0">P0 - Critical</option>
+                                <option value="P1">P1 - High</option>
+                                <option value="P2">P2 - Medium</option>
+                                <option value="P3">P3 - Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Preconditions</label>
+                        <textarea id="newTcPre" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Test Steps</label>
+                        <textarea id="newTcSteps" rows="3" placeholder="1. Step one&#10;2. Step two..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Expected Result</label>
+                        <textarea id="newTcExpected" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Initial Status</label>
+                        <select id="newTcStatus">
+                            <option value="Not Run">Untested</option>
+                            <option value="Pass">Passed</option>
+                            <option value="Fail">Failed</option>
+                            <option value="Blocked">Blocked</option>
+                            <option value="Re-test">Re-test</option>
+                            <option value="In Progress">In Progress</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                        <button class="btn-save" onclick="addNewTestCase()">Save Test Case</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="record-count" id="recordCount">Showing all records organized by suite</span>
+    </div>
+
+    <table id="testTable">
+        <thead>
+            <tr>
+                <th class="checkbox-cell"><input type="checkbox" id="selectAll"></th>
+                <th style="width: 100px;">Test Case ID</th>
+                <th style="width: 180px;">Test Case Title/Name</th>
+                <th style="width: 120px;">Module/Feature</th>
+                <th style="width: 70px;">Priority</th>
+                <th style="width: 200px;">Preconditions</th>
+                <th style="width: 150px;">Test Data</th>
+                <th style="width: 280px;">Test Steps</th>
+                <th style="width: 200px;">Expected Result</th>
+                <th style="width: 200px;">Actual Result</th>
+                <th style="width: 120px;">Status</th>
+                <th style="width: 200px;">Comments/Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dynamic Suite Rendering -->
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const featureFilter = document.getElementById('featureFilter');
+            const priorityFilter = document.getElementById('priorityFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            const table = document.getElementById('testTable');
+            const recordCount = document.getElementById('recordCount');
+            const selectAllBox = document.getElementById('selectAll');
+            const saveStatus = document.getElementById('saveStatus');
+            const editModeToggle = document.getElementById('editModeToggle');
+
+            // --- EDIT MODE PROTECTION ---
+            function toggleEditMode() {
+                const isEditing = editModeToggle.checked;
+                const editableCells = document.querySelectorAll('.editable-cell');
+
+                if (isEditing) {
+                    document.body.classList.add('editing-active');
+                    editableCells.forEach(cell => cell.setAttribute('contenteditable', 'true'));
+                } else {
+                    document.body.classList.remove('editing-active');
+                    editableCells.forEach(cell => cell.removeAttribute('contenteditable'));
+                }
+            }
+
+            editModeToggle.addEventListener('change', toggleEditMode);
+
+            // --- STATUS DROPDOWN LOGIC ---
+            function updateStatusStyle(select) {
+                const status = select.value;
+                select.setAttribute('data-status', status);
+            }
+
+            // --- FORMATTING LOGIC ---
+            function formatContent(text) {
+                if (!text) return '';
+                // Normalize breaks to avoid double spacing
+                let cleanText = text.replace(/<br\s*\/?>/gi, '\n');
+                return cleanText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            }
+
+            // --- EVENT DELEGATION ---
+            table.addEventListener('click', function (e) {
+                if (e.target.classList.contains('delete-row-btn')) {
+                    const row = e.target.closest('tr');
+                    const idCell = row.cells[1].querySelector('.editable-cell');
+                    const id = idCell ? idCell.innerText : 'Unknown';
+                    if (confirm(`Are you sure you want to delete test case ${id}?`)) {
+                        row.remove();
+                        saveToLocalStorage();
+                        renderSuites(); // Re-render logic for suites
+                    }
+                }
+            });
+            function saveToLocalStorage() {
+                try {
+                    const allDataRows = table.querySelectorAll('tbody tr:not(.suite-header)');
+                    const data = [];
+                    allDataRows.forEach(row => {
+                        const statusSelect = row.querySelector('.status-select');
+                        if (!statusSelect) return;
+
+                        data.push({
+                            id: row.cells[1].querySelector('.editable-cell').innerText.trim(),
+                            title: row.cells[2].innerHTML,
+                            feature: row.cells[3].textContent.trim(),
+                            priority: row.cells[4].textContent.trim(),
+                            preconditions: row.cells[5].innerHTML,
+                            testData: row.cells[6].innerHTML,
+                            steps: row.cells[7].innerHTML,
+                            expected: row.cells[8].innerHTML,
+                            actual: row.cells[9].innerHTML,
+                            status: statusSelect.value,
+                            notes: row.cells[11].innerHTML
+                        });
+                    });
+                    localStorage.setItem('tc_sheet_data', JSON.stringify(data));
+                    saveStatus.style.display = 'block';
+                    setTimeout(() => { saveStatus.style.display = 'none'; }, 2000);
+                } catch (e) {
+                    console.error("Save failed:", e);
+                }
+            }
+
+            function createRow(tcData, atTop = false) {
+                const tbody = table.querySelector('tbody');
+                const row = atTop ? tbody.insertRow(0) : tbody.insertRow();
+
+                // Sanitize ID in case it contains HTML from a previous buggy save
+                let cleanId = tcData.id;
+                if (typeof cleanId === 'string' && cleanId.includes('<span')) {
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = cleanId;
+                    const editablePart = tempDiv.querySelector('.editable-cell');
+                    cleanId = editablePart ? editablePart.innerText : tempDiv.innerText;
+                }
+
+                const feature = tcData.feature || 'Unknown';
+                const priority = (tcData.priority || 'P1').toUpperCase();
+                const status = tcData.status || 'Not Run';
+
+                row.innerHTML = `
+                    <td class="checkbox-cell"><input type="checkbox" class="row-checkbox"></td>
+                    <td class="tc-id">
+                        <span class="editable-cell">${cleanId}</span>
+                        <span class="delete-row-btn" title="Delete Test Case">🗑️</span>
+                    </td>
+                    <td class="editable-cell"><strong>${tcData.title}</strong></td>
+                    <td><span class="feature-area feature-${feature.toLowerCase().replace(/\s+/g, '-')}">${feature}</span></td>
+                    <td><span class="priority ${priority.toLowerCase()}">${priority}</span></td>
+                    <td class="editable-cell preconditions">${formatContent(tcData.preconditions) || ''}</td>
+                    <td class="test-data editable-cell">${formatContent(tcData.testData) || ''}</td>
+                    <td class="steps editable-cell">${formatContent(tcData.steps) || ''}</td>
+                    <td class="expected editable-cell">${formatContent(tcData.expected) || ''}</td>
+                    <td class="actual editable-cell">${formatContent(tcData.actual) || ''}</td>
+                    <td>
+                        <select class="status-select" data-status="${status}">
+                            <option value="Pass" ${status === 'Pass' ? 'selected' : ''}>Passed</option>
+                            <option value="Fail" ${status === 'Fail' ? 'selected' : ''}>Failed</option>
+                            <option value="Blocked" ${status === 'Blocked' ? 'selected' : ''}>Blocked</option>
+                            <option value="Re-test" ${status === 'Re-test' ? 'selected' : ''}>Re-test</option>
+                            <option value="In Progress" ${status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                            <option value="Not Run" ${status === 'Not Run' ? 'selected' : ''}>Untested</option>
+                        </select>
+                    </td>
+                    <td class="notes editable-cell">${tcData.notes || ''}</td>
+                `;
+
+                updateStatusStyle(row.querySelector('.status-select'));
+                if (editModeToggle.checked) {
+                    row.querySelectorAll('.editable-cell').forEach(cell => cell.setAttribute('contenteditable', 'true'));
+                }
+                return row;
+            }
+
+            function renderTableBySuites() {
+                const savedData = localStorage.getItem('tc_sheet_data');
+                const tbody = table.querySelector('tbody');
+                tbody.innerHTML = '';
+                if (!savedData) return;
+
+                const data = JSON.parse(savedData);
+                const suites = {};
+                data.forEach(tc => {
+                    const suiteName = tc.feature || 'General';
+                    if (!suites[suiteName]) suites[suiteName] = [];
+                    suites[suiteName].push(tc);
+                });
+
+                Object.keys(suites).sort().forEach(suiteName => {
+                    const suiteTests = suites[suiteName];
+                    const suiteRow = tbody.insertRow();
+                    suiteRow.className = 'suite-header';
+                    suiteRow.setAttribute('data-suite-name', suiteName);
+                    suiteRow.innerHTML = `
+                        <td colspan="12">
+                            <span class="suite-toggle-icon">▼</span>
+                            Suite: ${suiteName}
+                            <span class="suite-count">${suiteTests.length} Tests</span>
+                        </td>
+                    `;
+                    suiteRow.onclick = () => window.toggleSuite(suiteName);
+
+                    suiteTests.forEach(tc => {
+                        const row = createRow(tc);
+                        row.setAttribute('data-suite', suiteName);
+                    });
+                });
+                filterTable();
+            }
+
+            window.toggleSuite = function (suiteName) {
+                const header = table.querySelector(`.suite-header[data-suite-name="${suiteName}"]`);
+                header.classList.toggle('suite-collapsed');
+                filterTable();
+            };
+
+            function loadFromLocalStorage() {
+                renderTableBySuites();
+            }
+
+            function filterTable() {
+                const searchText = searchInput.value.toLowerCase();
+                const featureValue = featureFilter.value.toLowerCase();
+                const priorityValue = priorityFilter.value.toLowerCase();
+                const statusValue = statusFilter.value.toLowerCase();
+
+                const suiteHeaders = table.querySelectorAll('.suite-header');
+                let totalVisible = 0;
+
+                suiteHeaders.forEach(header => {
+                    const suiteName = header.getAttribute('data-suite-name');
+                    const suiteRows = table.querySelectorAll(`tr[data-suite="${suiteName}"]`);
+                    const isSuiteCollapsed = header.classList.contains('suite-collapsed');
+                    let visibleInSuite = 0;
+
+                    suiteRows.forEach(row => {
+                        const id = row.cells[1]?.textContent.toLowerCase() || '';
+                        const title = row.cells[2]?.textContent.toLowerCase() || '';
+                        const feature = row.cells[3]?.textContent.toLowerCase() || '';
+                        const priority = row.cells[4]?.textContent.toLowerCase() || '';
+                        const status = row.querySelector('.status-select')?.value.toLowerCase() || '';
+
+                        const textMatch = id.includes(searchText) || title.includes(searchText);
+                        const featureMatch = featureValue === 'all' || feature.includes(featureValue);
+                        const priorityMatch = priorityValue === 'all' || priority.includes(priorityValue);
+                        const statusMatch = statusValue === 'all' || status === statusValue;
+
+                        if (textMatch && featureMatch && priorityMatch && statusMatch) {
+                            row.style.display = isSuiteCollapsed ? 'none' : '';
+                            visibleInSuite++;
+                            totalVisible++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+
+                    header.style.display = (visibleInSuite > 0) ? '' : 'none';
+                    header.querySelector('.suite-count').textContent = `${visibleInSuite} Matches`;
+                    header.querySelector('.suite-toggle-icon').textContent = isSuiteCollapsed ? '▶' : '▼';
+                });
+
+                recordCount.textContent = `Showing ${totalVisible} matches across suites`;
+                selectAllBox.checked = false;
+            }
+
+            window.openModal = function () {
+                document.getElementById('addModal').style.display = 'block';
+                const currentRows = table.querySelectorAll('tbody tr:not(.suite-header)');
+                const lastId = currentRows[currentRows.length - 1]?.cells[1].innerText || 'TC-000';
+                const idMatch = lastId.match(/(\d+)/);
+                if (idMatch) {
+                    const nextNum = (parseInt(idMatch[0]) + 1).toString().padStart(idMatch[0].length, '0');
+                    document.getElementById('newTcId').value = lastId.replace(idMatch[0], nextNum);
+                }
+            };
+
+            window.closeModal = function () {
+                document.getElementById('addModal').style.display = 'none';
+            };
+
+            window.addNewTestCase = function () {
+                const id = document.getElementById('newTcId').value;
+                const title = document.getElementById('newTcTitle').value;
+                const feature = document.getElementById('newTcFeature').value;
+                const priority = document.getElementById('newTcPriority').value;
+                const status = document.getElementById('newTcStatus').value;
+                const steps = document.getElementById('newTcSteps').value;
+
+                if (!id || !title) {
+                    alert("Please fill in ID and Title");
+                    return;
+                }
+
+                createRow({
+                    id, title, feature, priority,
+                    preconditions: document.getElementById('newTcPre').value,
+                    steps, expected: document.getElementById('newTcExpected').value,
+                    status, actual: '', testData: '', notes: ''
+                });
+
+                saveToLocalStorage();
+                renderTableBySuites();
+                closeModal();
+            };
+
+            // Initial binding
+            loadFromLocalStorage();
+            searchInput.addEventListener('input', filterTable);
+            featureFilter.addEventListener('change', filterTable);
+            priorityFilter.addEventListener('change', filterTable);
+            statusFilter.addEventListener('change', filterTable);
+
+            // Checkbox and selection logic
+            table.querySelector('tbody').addEventListener('click', function (e) {
+                const tr = e.target.closest('tr');
+                if (!tr || tr.classList.contains('suite-header')) return;
+
+                if (e.target.classList.contains('row-checkbox')) {
+                    tr.classList.toggle('selected', e.target.checked);
+                    return;
+                }
+
+                if (e.target.classList.contains('status-select')) return;
+
+                table.querySelectorAll('tbody tr').forEach(row => row.classList.remove('active-testing'));
+                tr.classList.add('active-testing');
+            });
+
+            table.addEventListener('input', e => e.target.classList.contains('editable-cell') && saveToLocalStorage());
+            table.addEventListener('change', e => {
+                if (e.target.classList.contains('status-select')) {
+                    updateStatusStyle(e.target);
+                    saveToLocalStorage();
+                    filterTable();
+                }
+            });
+        });
+
+        // --- JSON IMPORT/EXPORT ---
+
+        function handleJSONSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const newData = JSON.parse(e.target.result);
+                    if (Array.isArray(newData)) {
+                        const existingDataString = localStorage.getItem('tc_sheet_data') || '[]';
+                        const existingData = JSON.parse(existingDataString);
+
+                        if (confirm(`Are you sure you want to add ${newData.length} test cases to your existing list of ${existingData.length}?`)) {
+                            const combinedData = existingData.concat(newData);
+                            localStorage.setItem('tc_sheet_data', JSON.stringify(combinedData));
+                            location.reload(); // Refresh to show new data
+                        }
+                    } else {
+                        alert("Invalid JSON format. Expected an array of test cases.");
+                    }
+                } catch (err) {
+                    alert("Error parsing JSON file.");
+                    console.error(err);
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function exportData() {
+            const savedData = localStorage.getItem('tc_sheet_data') || '[]';
+            const blob = new Blob([savedData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+            a.href = url;
+            a.download = `test_cases_backup_${timestamp}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+
+</html>
