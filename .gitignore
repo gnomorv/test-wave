@@ -6,6 +6,11 @@ node_modules/
 .env.local
 .env.*.local
 
+# Google credentials (never commit)
+impactful-bee-*.json
+client_secret_*.json
+*.apps.googleusercontent.com.json
+
 # Logs
 logs
 *.log

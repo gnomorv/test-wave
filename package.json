@@ -4,8 +4,9 @@
   "description": "Test Case Management Dashboard with MongoDB",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "NODE_ENV=development node server.js",
+    "dev": "NODE_ENV=development nodemon server.js",
+    "start:prod": "node server.js",
     "import": "node -e \"require('./server.js')\""
   },
   "keywords": [
@@ -19,8 +20,10 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "googleapis": "^171.2.0",
     "mongodb": "^7.1.0",
-    "mongoose": "^7.0.0"
+    "mongoose": "^7.0.0",
+    "multer": "^2.0.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"

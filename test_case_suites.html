@@ -5,6 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Case Management - Suites View</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#050505',
+                            800: '#0a0a0a',
+                            700: '#121212',
+                            600: '#1c1c1c',
+                        },
+                        accent: {
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         * {
             margin: 0;
@@ -13,9 +36,9 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: #f8f9fa;
-            padding: 20px;
+            padding: 0;
         }
 
         .container {
@@ -24,35 +47,18 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .header {
-            padding: 20px;
-            background: #6AC8EF;
-            color: white;
-            border-radius: 8px 8px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header-text h1 {
-            font-size: 24px;
-            margin-bottom: 4px;
-        }
-
-        .header-text p {
-            opacity: 0.9;
-            font-size: 14px;
+            margin: 20px;
         }
 
         .save-status {
             font-size: 12px;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 4px 12px;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            padding: 6px 14px;
             border-radius: 20px;
             display: none;
             animation: fadeIn 0.3s;
+            border: 1px solid rgba(56, 189, 248, 0.3);
         }
 
         @keyframes fadeIn {
@@ -90,10 +96,10 @@
 
         .filter-bar select,
         .filter-bar input {
-            padding: 6px 10px;
+            padding: 4px 8px;
             border: 1px solid #dadce0;
-            border-radius: 4px;
-            font-size: 13px;
+            border-radius: 20px;
+            font-size: 12px;
             outline: none;
         }
 
@@ -118,25 +124,6 @@
         .filter-bar button:hover {
             background: #f8f9fa;
             border-color: #1a73e8;
-        }
-
-        .filter-bar button.primary {
-            background: #dae2e5;
-            color: #5f6368;
-            border: 1px solid #dadce0;
-        }
-
-        .filter-bar button.primary:hover {
-            background: #ced6da;
-        }
-
-        .filter-bar select,
-        .filter-bar input {
-            padding: 4px 8px;
-            border: 1px solid #dadce0;
-            border-radius: 20px;
-            font-size: 12px;
-            outline: none;
         }
 
         /* Edit Mode Toggle Styles in Filter Bar */
@@ -210,6 +197,10 @@
             outline: 2px solid #1a73e8;
             border-style: solid;
             z-index: 10;
+        }
+
+        body.editing-active .delete-row-btn {
+            display: inline-block;
         }
 
         .record-count {
@@ -287,10 +278,6 @@
             transform: scale(1.1);
         }
 
-        body.editing-active .delete-row-btn {
-            display: inline-block;
-        }
-
         .feature-area {
             display: inline-block;
             padding: 3px 10px;
@@ -358,7 +345,7 @@
             background-color: #34a853;
         }
 
-        /* Status Select Styles (Chip style) */
+        /* Status Select Styles */
         .status-select {
             width: auto;
             min-width: 85px;
@@ -401,14 +388,14 @@
 
         /* Suite Grouping Styles */
         .suite-header {
-            background-color: #f1f3f4 !important;
+            background-color: #e8eaed !important;
             cursor: pointer;
             user-select: none;
             transition: background 0.2s;
         }
 
         .suite-header:hover {
-            background-color: #e8eaed !important;
+            background-color: #dadce0 !important;
         }
 
         .suite-header td {
@@ -601,45 +588,229 @@
             background: #5ab8df;
             transform: translateY(-1px);
         }
+
+        /* Dark Navbar Styles */
+        .dark-navbar {
+            background: #050505;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .glass-btn {
+            background: rgba(18, 18, 18, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-btn:hover {
+            border-color: rgba(56, 189, 248, 0.3);
+            background: rgba(30, 30, 30, 0.8);
+        }
+        .btn-primary-dark {
+            background: #38bdf8;
+            color: #000;
+        }
+        .btn-primary-dark:hover {
+            background: #7dd3fc;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+
+        /* Execution Modal Styles */
+        .exec-btn {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            margin-left: 4px;
+            white-space: nowrap;
+        }
+        .exec-btn:hover {
+            background: #1557b0;
+        }
+
+        .history-btn {
+            background: none;
+            border: 1px solid #dadce0;
+            color: #5f6368;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            margin-left: 4px;
+        }
+        .history-btn:hover {
+            border-color: #1a73e8;
+            color: #1a73e8;
+        }
+
+        .file-preview {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .file-preview-item {
+            background: #f1f3f4;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .file-preview-item .remove-file {
+            cursor: pointer;
+            color: #ea4335;
+            font-weight: bold;
+        }
+
+        .result-option {
+            display: inline-block;
+            padding: 8px 16px;
+            border: 2px solid #dadce0;
+            border-radius: 8px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .result-option:hover {
+            border-color: #1a73e8;
+        }
+
+        .result-option.selected {
+            border-color: transparent;
+            color: white;
+        }
+
+        .result-option[data-value="Pass"].selected { background: #34a853; }
+        .result-option[data-value="Fail"].selected { background: #ea4335; }
+        .result-option[data-value="Blocked"].selected { background: #fbbc04; color: #333; }
+        .result-option[data-value="In Progress"].selected { background: #ff69b4; }
+        .result-option[data-value="Re-test"].selected { background: #9c27b0; }
+
+        /* Execution History Styles */
+        .execution-history {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .execution-item {
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #fafafa;
+        }
+
+        .execution-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .execution-result {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .execution-result.Pass { background: #34a853; }
+        .execution-result.Fail { background: #ea4335; }
+        .execution-result.Blocked { background: #fbbc04; color: #333; }
+        .execution-result[class*="In Progress"] { background: #ff69b4; }
+        .execution-result.Re-test { background: #9c27b0; }
+
+        .execution-meta {
+            font-size: 12px;
+            color: #5f6368;
+        }
+
+        .execution-notes {
+            font-size: 13px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #eee;
+        }
+
+        .execution-evidence {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .evidence-link {
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            text-decoration: none;
+        }
+
+        .evidence-link:hover {
+            background: #d2e3fc;
+        }
+
+        .drive-status-banner {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .drive-status-banner.configured {
+            background: #d4edda;
+            border-color: #28a745;
+        }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="header-text">
-                <h1>Test Case Management (Suites View)</h1>
-                <p>Organized by Feature Area Groups (Collapsible)</p>
+    <!-- Dark Navbar -->
+    <nav class="dark-navbar w-full py-4 px-8">
+        <div class="max-w-[1440px] mx-auto flex items-center justify-between">
+            <!-- Logo & Project Name -->
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="flex items-center gap-3 text-gray-400 hover:text-white transition-colors">
+                    <div class="w-8 h-8 bg-gradient-to-br from-accent-400 to-blue-600 rounded-lg flex items-center justify-center text-black font-bold text-lg">
+                        <i class="fa-solid fa-layer-group text-sm"></i>
+                    </div>
+                    <span class="text-xl font-bold tracking-tight text-white">Test<span class="text-accent-400">Flow</span></span>
+                </a>
+                <div class="h-6 w-px bg-white/10 mx-2"></div>
+                <div>
+                    <h1 id="projectTitle" class="text-lg font-semibold text-white">Test Case Management (Suites)</h1>
+                    <p id="projectSubtitle" class="text-xs text-gray-500">Organized by Feature Area Groups</p>
+                </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <a href="test_case_sheet.html" style="
-                    background: rgba(255,255,255,0.1);
-                    color: white;
-                    text-decoration: none;
-                    padding: 8px 15px;
-                    border-radius: 30px;
-                    font-size: 13px;
-                    font-weight: 600;
-                    border: 1px solid rgba(255,255,255,0.3);
-                    display: flex; align-items: center; gap: 6px;
-                ">📄 Back to List</a>
-                <a href="test_case_dashboard.html" style="
-                    background: white;
-                    color: #6AC8EF;
-                    text-decoration: none;
-                    padding: 8px 20px;
-                    border-radius: 30px;
-                    font-size: 14px;
-                    font-weight: 700;
-                    transition: all 0.2s;
-                    display: flex; align-items: center; gap: 8px;
-                    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-                " onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)'"
-                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(0,0,0,0.1)'">📈
-                    View Dashboard</a>
-                <div id="saveStatus" class="save-status">Auto-saved to browser</div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-3">
+                <div id="saveStatus" class="save-status"><i class="fa-solid fa-check" style="margin-right: 4px;"></i> Saved</div>
+                <a id="sheetLink" href="test_case_sheet.html" class="glass-btn px-4 py-2 rounded-lg text-gray-300 hover:text-white text-sm flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-list text-xs"></i> List View
+                </a>
+                <a id="dashboardLink" href="test_case_dashboard.html" class="btn-primary-dark px-5 py-2.5 rounded-lg font-semibold text-sm flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-chart-line text-xs"></i> Dashboard
+                </a>
             </div>
         </div>
+    </nav>
+
+    <div class="container">
 
         <div class="filter-bar">
             <div class="filter-group">
@@ -689,39 +860,56 @@
                 <span class="edit-label">Edit Mode</span>
             </div>
             <button class="btn-add-test" onclick="openModal()" style="margin-right: 10px;">
-                <span>+</span> Add Test
+                <span>+</span> Create Test
             </button>
             <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
                 <input type="file" id="jsonFileInput" accept=".json" style="display: none;"
                     onchange="handleJSONSelect(event)">
                 <button onclick="document.getElementById('jsonFileInput').click()" style="
-                    background: none;
-                    border: 1px solid #dadce0;
-                    color: #5f6368;
-                    font-size: 11px;
-                    padding: 4px 10px;
-                    font-weight: 500;
-                    opacity: 0.8;
-                    border-radius: 20px;
-                    cursor: pointer;
+background: none;
+border: 1px solid #dadce0;
+color: #5f6368;
+font-size: 11px;
+padding: 4px 10px;
+font-weight: 500;
+opacity: 0.8;
+border-radius: 20px;
+cursor: pointer;
                 " onmouseover="this.style.opacity='1'; this.style.borderColor='#1a73e8'; this.style.color='#1a73e8'"
                     onmouseout="this.style.opacity='0.8'; this.style.borderColor='#dadce0'; this.style.color='#5f6368'">
-                    📥 Import JSON
+                    Import JSON
                 </button>
                 <div style="width: 1px; height: 16px; background: #dadce0; margin: 0 4px;"></div>
                 <button class="primary" onclick="exportData()" title="Export all test cases as a JSON file" style="
-                    background: none;
-                    border: 1px solid #dadce0;
-                    color: #5f6368;
-                    font-size: 11px;
-                    padding: 4px 10px;
-                    font-weight: 500;
-                    opacity: 0.8;
-                    border-radius: 20px;
-                    cursor: pointer;
+background: none;
+border: 1px solid #dadce0;
+color: #5f6368;
+font-size: 11px;
+padding: 4px 10px;
+font-weight: 500;
+opacity: 0.8;
+border-radius: 20px;
+cursor: pointer;
                 " onmouseover="this.style.opacity='1'; this.style.borderColor='#1a73e8'; this.style.color='#1a73e8'"
                     onmouseout="this.style.opacity='0.8'; this.style.borderColor='#dadce0'; this.style.color='#5f6368'">
-                    💾 Export JSON
+                    Export JSON
+                </button>
+                <div id="resetSeparator"
+                    style="width: 1px; height: 16px; background: #dadce0; margin: 0 4px; display: none;"></div>
+                <button id="resetDataBtn" onclick="clearAllData()" title="Delete all data to start fresh" style="
+background: none;
+border: 1px solid #ea4335;
+color: #ea4335;
+font-size: 11px;
+padding: 4px 10px;
+font-weight: 500;
+opacity: 0.8;
+border-radius: 20px;
+cursor: pointer;
+display: none;
+                " onmouseover="this.style.opacity='1'; this.style.backgroundColor='rgba(234,67,53,0.1)'"
+                    onmouseout="this.style.opacity='0.8'; this.style.backgroundColor='transparent'">
+                    Reset
                 </button>
             </div>
         </div>
@@ -794,6 +982,79 @@
                 </div>
             </div>
         </div>
+
+        <!-- Execution Log Modal -->
+        <div id="executionModal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h2>Log Test Execution</h2>
+                        <span id="executionTestId" style="color: #5f6368; font-size: 13px;"></span>
+                    </div>
+                    <button class="close-modal" onclick="closeExecutionModal()">&times;</button>
+                </div>
+
+                <div id="driveStatusBanner" class="drive-status-banner">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span id="driveStatusText">Google Drive not configured. Evidence files will not be uploaded.</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Tester Name *</label>
+                    <input type="text" id="execTesterName" placeholder="Your name">
+                </div>
+
+                <div class="form-group">
+                    <label>Execution Result *</label>
+                    <div id="resultOptions">
+                        <span class="result-option" data-value="Pass" onclick="selectResult(this)">Pass</span>
+                        <span class="result-option" data-value="Fail" onclick="selectResult(this)">Fail</span>
+                        <span class="result-option" data-value="Blocked" onclick="selectResult(this)">Blocked</span>
+                        <span class="result-option" data-value="In Progress" onclick="selectResult(this)">In Progress</span>
+                        <span class="result-option" data-value="Re-test" onclick="selectResult(this)">Re-test</span>
+                    </div>
+                    <input type="hidden" id="execResult" value="">
+                </div>
+
+                <div class="form-group">
+                    <label>Execution Notes</label>
+                    <textarea id="execNotes" rows="3" placeholder="Describe what happened during execution..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Evidence Files (Screenshots, Logs)</label>
+                    <input type="file" id="execEvidence" multiple accept="image/*,.pdf,.txt,.log,.mp4,.mov">
+                    <div id="filePreview" class="file-preview"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn-cancel" onclick="closeExecutionModal()">Cancel</button>
+                    <button class="btn-save" onclick="submitExecution()" id="submitExecBtn">Log Execution</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Execution History Modal -->
+        <div id="historyModal" class="modal-overlay">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <div>
+                        <h2>Execution History</h2>
+                        <span id="historyTestId" style="color: #5f6368; font-size: 13px;"></span>
+                    </div>
+                    <button class="close-modal" onclick="closeHistoryModal()">&times;</button>
+                </div>
+
+                <div id="executionHistoryList" class="execution-history">
+                    <p style="color: #5f6368; text-align: center; padding: 20px;">Loading...</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn-cancel" onclick="closeHistoryModal()">Close</button>
+                </div>
+            </div>
+        </div>
+
         <span class="record-count" id="recordCount">Showing all records organized by suite</span>
     </div>
 
@@ -812,6 +1073,7 @@
                 <th style="width: 200px;">Actual Result</th>
                 <th style="width: 120px;">Status</th>
                 <th style="width: 200px;">Comments/Notes</th>
+                <th style="width: 120px;">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -819,8 +1081,37 @@
         </tbody>
     </table>
 
+    </div>
+
     <script>
+        // Get project from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentProject = urlParams.get('project') || 'default';
+
+        // Project name mapping
+        const projectNames = {
+            'wiseloan': 'Wiseloan',
+            'rv-website': 'RV Website',
+            'dlc': 'DLC',
+            '360-connect': '360 Connect',
+            'cowboys': 'Cowboys',
+            'bbcom': 'BBcom'
+        };
+
+        // Store all test case data
+        let allTestCases = [];
+
         document.addEventListener('DOMContentLoaded', function () {
+            // Update header with project name
+            const projectName = projectNames[currentProject] || currentProject;
+            document.getElementById('projectTitle').textContent = `${projectName} - Test Suites`;
+            document.getElementById('projectSubtitle').textContent = `Test cases organized by feature for ${projectName}`;
+            document.title = `${projectName} - Test Suites`;
+
+            // Update navigation links with project
+            document.getElementById('dashboardLink').href = `test_case_dashboard.html?project=${currentProject}`;
+            document.getElementById('sheetLink').href = `test_case_sheet.html?project=${currentProject}`;
+
             const searchInput = document.getElementById('searchInput');
             const featureFilter = document.getElementById('featureFilter');
             const priorityFilter = document.getElementById('priorityFilter');
@@ -856,59 +1147,51 @@
             // --- FORMATTING LOGIC ---
             function formatContent(text) {
                 if (!text) return '';
-                // Normalize breaks to avoid double spacing
                 let cleanText = text.replace(/<br\s*\/?>/gi, '\n');
                 return cleanText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
             }
 
-            // --- EVENT DELEGATION ---
-            table.addEventListener('click', function (e) {
-                if (e.target.classList.contains('delete-row-btn')) {
-                    const row = e.target.closest('tr');
-                    const idCell = row.cells[1].querySelector('.editable-cell');
-                    const id = idCell ? idCell.innerText : 'Unknown';
-                    if (confirm(`Are you sure you want to delete test case ${id}?`)) {
-                        row.remove();
-                        saveToLocalStorage();
-                        renderSuites(); // Re-render logic for suites
-                    }
-                }
-            });
-            function saveToLocalStorage() {
+            async function saveTestCase(id, data) {
                 try {
-                    const allDataRows = table.querySelectorAll('tbody tr:not(.suite-header)');
-                    const data = [];
-                    allDataRows.forEach(row => {
-                        const statusSelect = row.querySelector('.status-select');
-                        if (!statusSelect) return;
-
-                        data.push({
-                            id: row.cells[1].querySelector('.editable-cell').innerText.trim(),
-                            title: row.cells[2].innerHTML,
-                            feature: row.cells[3].textContent.trim(),
-                            priority: row.cells[4].textContent.trim(),
-                            preconditions: row.cells[5].innerHTML,
-                            testData: row.cells[6].innerHTML,
-                            steps: row.cells[7].innerHTML,
-                            expected: row.cells[8].innerHTML,
-                            actual: row.cells[9].innerHTML,
-                            status: statusSelect.value,
-                            notes: row.cells[11].innerHTML
-                        });
+                    data.projectId = currentProject;
+                    const response = await fetch(`/api/test-cases/${id}?projectId=${currentProject}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
                     });
-                    localStorage.setItem('tc_sheet_data', JSON.stringify(data));
+                    if (!response.ok) throw new Error('Save failed');
+
+                    saveStatus.textContent = 'Saved to database';
                     saveStatus.style.display = 'block';
                     setTimeout(() => { saveStatus.style.display = 'none'; }, 2000);
                 } catch (e) {
                     console.error("Save failed:", e);
+                    saveStatus.textContent = 'Save failed!';
+                    saveStatus.style.display = 'block';
                 }
             }
 
-            function createRow(tcData, atTop = false) {
-                const tbody = table.querySelector('tbody');
-                const row = atTop ? tbody.insertRow(0) : tbody.insertRow();
+            function getRowData(row) {
+                const statusSelect = row.querySelector('.status-select');
+                if (!statusSelect) return null;
+                return {
+                    id: row.cells[1].querySelector('.editable-cell').innerText.trim(),
+                    title: row.cells[2].innerHTML,
+                    feature: row.cells[3].textContent.trim(),
+                    priority: row.cells[4].textContent.trim(),
+                    preconditions: row.cells[5].innerHTML,
+                    testData: row.cells[6].innerHTML,
+                    steps: row.cells[7].innerHTML,
+                    expected: row.cells[8].innerHTML,
+                    actual: row.cells[9].innerHTML,
+                    status: statusSelect.value,
+                    notes: row.cells[11].innerHTML
+                };
+            }
 
-                // Sanitize ID in case it contains HTML from a previous buggy save
+            function createRow(tcData, tbody) {
+                const row = tbody.insertRow();
+
                 let cleanId = tcData.id;
                 if (typeof cleanId === 'string' && cleanId.includes('<span')) {
                     const tempDiv = document.createElement('div');
@@ -922,46 +1205,52 @@
                 const status = tcData.status || 'Not Run';
 
                 row.innerHTML = `
-                    <td class="checkbox-cell"><input type="checkbox" class="row-checkbox"></td>
-                    <td class="tc-id">
-                        <span class="editable-cell">${cleanId}</span>
-                        <span class="delete-row-btn" title="Delete Test Case">🗑️</span>
-                    </td>
-                    <td class="editable-cell"><strong>${tcData.title}</strong></td>
-                    <td><span class="feature-area feature-${feature.toLowerCase().replace(/\s+/g, '-')}">${feature}</span></td>
-                    <td><span class="priority ${priority.toLowerCase()}">${priority}</span></td>
-                    <td class="editable-cell preconditions">${formatContent(tcData.preconditions) || ''}</td>
-                    <td class="test-data editable-cell">${formatContent(tcData.testData) || ''}</td>
-                    <td class="steps editable-cell">${formatContent(tcData.steps) || ''}</td>
-                    <td class="expected editable-cell">${formatContent(tcData.expected) || ''}</td>
-                    <td class="actual editable-cell">${formatContent(tcData.actual) || ''}</td>
-                    <td>
-                        <select class="status-select" data-status="${status}">
-                            <option value="Pass" ${status === 'Pass' ? 'selected' : ''}>Passed</option>
-                            <option value="Fail" ${status === 'Fail' ? 'selected' : ''}>Failed</option>
-                            <option value="Blocked" ${status === 'Blocked' ? 'selected' : ''}>Blocked</option>
-                            <option value="Re-test" ${status === 'Re-test' ? 'selected' : ''}>Re-test</option>
-                            <option value="In Progress" ${status === 'In Progress' ? 'selected' : ''}>In Progress</option>
-                            <option value="Not Run" ${status === 'Not Run' ? 'selected' : ''}>Untested</option>
-                        </select>
-                    </td>
-                    <td class="notes editable-cell">${tcData.notes || ''}</td>
+<td class="checkbox-cell"><input type="checkbox" class="row-checkbox"></td>
+<td class="tc-id">
+    <span class="editable-cell">${cleanId}</span>
+    <span class="delete-row-btn" title="Delete Test Case"></span>
+</td>
+<td class="editable-cell"><strong>${tcData.title}</strong></td>
+<td><span class="feature-area feature-${feature.toLowerCase().replace(/\s+/g, '-')}">${feature}</span></td>
+<td><span class="priority ${priority.toLowerCase()}">${priority}</span></td>
+<td class="editable-cell preconditions">${formatContent(tcData.preconditions) || ''}</td>
+<td class="test-data editable-cell">${formatContent(tcData.testData) || ''}</td>
+<td class="steps editable-cell">${formatContent(tcData.steps) || ''}</td>
+<td class="expected editable-cell">${formatContent(tcData.expected) || ''}</td>
+<td class="actual editable-cell">${formatContent(tcData.actual) || ''}</td>
+<td>
+    <select class="status-select" data-status="${status}">
+        <option value="Pass" ${status === 'Pass' ? 'selected' : ''}>Passed</option>
+        <option value="Fail" ${status === 'Fail' ? 'selected' : ''}>Failed</option>
+        <option value="Blocked" ${status === 'Blocked' ? 'selected' : ''}>Blocked</option>
+        <option value="Re-test" ${status === 'Re-test' ? 'selected' : ''}>Re-test</option>
+        <option value="In Progress" ${status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+        <option value="Not Run" ${status === 'Not Run' ? 'selected' : ''}>Untested</option>
+    </select>
+</td>
+<td class="notes editable-cell">${tcData.notes || ''}</td>
+<td style="white-space: nowrap;">
+    <button class="exec-btn" onclick="openExecutionModal('${cleanId}', '${(tcData.title || '').replace(/'/g, "\\'")}')">Run</button>
+    <button class="history-btn" onclick="openHistoryModal('${cleanId}')"></button>
+</td>
                 `;
 
                 updateStatusStyle(row.querySelector('.status-select'));
+
                 if (editModeToggle.checked) {
-                    row.querySelectorAll('.editable-cell').forEach(cell => cell.setAttribute('contenteditable', 'true'));
+                    row.querySelectorAll('.editable-cell').forEach(cell => {
+                        cell.setAttribute('contenteditable', 'true');
+                    });
                 }
+
+                row.setAttribute('data-suite', feature);
                 return row;
             }
 
-            function renderTableBySuites() {
-                const savedData = localStorage.getItem('tc_sheet_data');
+            function renderTableBySuites(data) {
                 const tbody = table.querySelector('tbody');
                 tbody.innerHTML = '';
-                if (!savedData) return;
 
-                const data = JSON.parse(savedData);
                 const suites = {};
                 data.forEach(tc => {
                     const suiteName = tc.feature || 'General';
@@ -975,20 +1264,30 @@
                     suiteRow.className = 'suite-header';
                     suiteRow.setAttribute('data-suite-name', suiteName);
                     suiteRow.innerHTML = `
-                        <td colspan="12">
-                            <span class="suite-toggle-icon">▼</span>
+                        <td colspan="13">
+                            <span class="suite-toggle-icon"></span>
                             Suite: ${suiteName}
                             <span class="suite-count">${suiteTests.length} Tests</span>
                         </td>
                     `;
                     suiteRow.onclick = () => window.toggleSuite(suiteName);
 
-                    suiteTests.forEach(tc => {
-                        const row = createRow(tc);
-                        row.setAttribute('data-suite', suiteName);
-                    });
+                    suiteTests.forEach(tc => createRow(tc, tbody));
                 });
+
                 filterTable();
+            }
+
+            async function loadFromDatabase() {
+                try {
+                    const response = await fetch(`/api/test-cases?projectId=${currentProject}`);
+                    if (!response.ok) throw new Error('Failed to fetch');
+                    allTestCases = await response.json();
+                    renderTableBySuites(allTestCases);
+                } catch (err) {
+                    console.error('Failed to load from database:', err);
+                    alert('Failed to load test cases from database');
+                }
             }
 
             window.toggleSuite = function (suiteName) {
@@ -996,10 +1295,6 @@
                 header.classList.toggle('suite-collapsed');
                 filterTable();
             };
-
-            function loadFromLocalStorage() {
-                renderTableBySuites();
-            }
 
             function filterTable() {
                 const searchText = searchInput.value.toLowerCase();
@@ -1039,13 +1334,22 @@
 
                     header.style.display = (visibleInSuite > 0) ? '' : 'none';
                     header.querySelector('.suite-count').textContent = `${visibleInSuite} Matches`;
-                    header.querySelector('.suite-toggle-icon').textContent = isSuiteCollapsed ? '▶' : '▼';
+                    header.querySelector('.suite-toggle-icon').textContent = isSuiteCollapsed ? '' : '';
                 });
 
                 recordCount.textContent = `Showing ${totalVisible} matches across suites`;
                 selectAllBox.checked = false;
             }
 
+            window.resetFilters = function() {
+                searchInput.value = '';
+                featureFilter.value = 'all';
+                priorityFilter.value = 'all';
+                statusFilter.value = 'all';
+                filterTable();
+            };
+
+            // --- MODAL FUNCTIONS ---
             window.openModal = function () {
                 document.getElementById('addModal').style.display = 'block';
                 const currentRows = table.querySelectorAll('tbody tr:not(.suite-header)');
@@ -1061,37 +1365,95 @@
                 document.getElementById('addModal').style.display = 'none';
             };
 
-            window.addNewTestCase = function () {
+            window.addNewTestCase = async function () {
                 const id = document.getElementById('newTcId').value;
                 const title = document.getElementById('newTcTitle').value;
                 const feature = document.getElementById('newTcFeature').value;
                 const priority = document.getElementById('newTcPriority').value;
                 const status = document.getElementById('newTcStatus').value;
+                const pre = document.getElementById('newTcPre').value;
                 const steps = document.getElementById('newTcSteps').value;
+                const expected = document.getElementById('newTcExpected').value;
 
                 if (!id || !title) {
                     alert("Please fill in ID and Title");
                     return;
                 }
 
-                createRow({
+                const newTestCase = {
                     id, title, feature, priority,
-                    preconditions: document.getElementById('newTcPre').value,
-                    steps, expected: document.getElementById('newTcExpected').value,
-                    status, actual: '', testData: '', notes: ''
-                });
+                    preconditions: pre, steps, expected,
+                    status, actual: '', testData: '', notes: '',
+                    projectId: currentProject
+                };
 
-                saveToLocalStorage();
-                renderTableBySuites();
-                closeModal();
+                try {
+                    const response = await fetch('/api/test-cases', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newTestCase)
+                    });
+                    const result = await response.json();
+                    if (!response.ok) {
+                        throw new Error(result.error || 'Failed to create');
+                    }
+
+                    // Reload data to show new test case in proper suite
+                    await loadFromDatabase();
+                    closeModal();
+
+                    // Clear form
+                    ['newTcId', 'newTcTitle', 'newTcPre', 'newTcSteps', 'newTcExpected'].forEach(id => {
+                        document.getElementById(id).value = '';
+                    });
+                } catch (err) {
+                    console.error('Failed to add test case:', err);
+                    alert('Failed to save: ' + err.message);
+                }
             };
 
-            // Initial binding
-            loadFromLocalStorage();
-            searchInput.addEventListener('input', filterTable);
-            featureFilter.addEventListener('change', filterTable);
-            priorityFilter.addEventListener('change', filterTable);
-            statusFilter.addEventListener('change', filterTable);
+            // --- EVENT DELEGATION ---
+            table.addEventListener('click', async function (e) {
+                if (e.target.classList.contains('delete-row-btn')) {
+                    const row = e.target.closest('tr');
+                    const idCell = row.cells[1].querySelector('.editable-cell');
+                    const id = idCell ? idCell.innerText : 'Unknown';
+                    if (confirm(`Are you sure you want to delete test case ${id}?`)) {
+                        try {
+                            const response = await fetch(`/api/test-cases/${id}?projectId=${currentProject}`, { method: 'DELETE' });
+                            if (!response.ok) throw new Error('Delete failed');
+                            await loadFromDatabase();
+                        } catch (err) {
+                            console.error('Failed to delete:', err);
+                            alert('Failed to delete from database');
+                        }
+                    }
+                }
+            });
+
+            // Handle content changes (debounced)
+            let saveTimeout;
+            table.addEventListener('input', function (e) {
+                if (e.target.classList.contains('editable-cell')) {
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(() => {
+                        const row = e.target.closest('tr');
+                        const data = getRowData(row);
+                        if (data) saveTestCase(data.id, data);
+                    }, 500);
+                }
+            });
+
+            // Handle status changes
+            table.addEventListener('change', function (e) {
+                if (e.target.classList.contains('status-select')) {
+                    updateStatusStyle(e.target);
+                    const row = e.target.closest('tr');
+                    const data = getRowData(row);
+                    if (data) saveTestCase(data.id, data);
+                    filterTable();
+                }
+            });
 
             // Checkbox and selection logic
             table.querySelector('tbody').addEventListener('click', function (e) {
@@ -1109,14 +1471,13 @@
                 tr.classList.add('active-testing');
             });
 
-            table.addEventListener('input', e => e.target.classList.contains('editable-cell') && saveToLocalStorage());
-            table.addEventListener('change', e => {
-                if (e.target.classList.contains('status-select')) {
-                    updateStatusStyle(e.target);
-                    saveToLocalStorage();
-                    filterTable();
-                }
-            });
+            // --- INITIALIZATION ---
+            loadFromDatabase();
+            toggleEditMode();
+            searchInput.addEventListener('input', filterTable);
+            featureFilter.addEventListener('change', filterTable);
+            priorityFilter.addEventListener('change', filterTable);
+            statusFilter.addEventListener('change', filterTable);
         });
 
         // --- JSON IMPORT/EXPORT ---
@@ -1126,23 +1487,27 @@
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function (e) {
+            reader.onload = async function (e) {
                 try {
                     const newData = JSON.parse(e.target.result);
                     if (Array.isArray(newData)) {
-                        const existingDataString = localStorage.getItem('tc_sheet_data') || '[]';
-                        const existingData = JSON.parse(existingDataString);
-
-                        if (confirm(`Are you sure you want to add ${newData.length} test cases to your existing list of ${existingData.length}?`)) {
-                            const combinedData = existingData.concat(newData);
-                            localStorage.setItem('tc_sheet_data', JSON.stringify(combinedData));
-                            location.reload(); // Refresh to show new data
+                        const projectName = projectNames[currentProject] || currentProject;
+                        if (confirm(`Are you sure you want to add ${newData.length} test cases to ${projectName}?`)) {
+                            for (const tc of newData) {
+                                tc.projectId = currentProject;
+                                await fetch('/api/test-cases', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(tc)
+                                });
+                            }
+                            location.reload();
                         }
                     } else {
                         alert("Invalid JSON format. Expected an array of test cases.");
                     }
                 } catch (err) {
-                    alert("Error parsing JSON file.");
+                    alert("Error importing JSON file.");
                     console.error(err);
                 }
                 event.target.value = '';
@@ -1150,19 +1515,288 @@
             reader.readAsText(file);
         }
 
-        function exportData() {
-            const savedData = localStorage.getItem('tc_sheet_data') || '[]';
-            const blob = new Blob([savedData], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-            a.href = url;
-            a.download = `test_cases_backup_${timestamp}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+        async function exportData() {
+            try {
+                const response = await fetch(`/api/test-cases?projectId=${currentProject}`);
+                const data = await response.json();
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+                const projectName = projectNames[currentProject] || currentProject;
+                a.href = url;
+                a.download = `${projectName}_test_cases_${timestamp}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (err) {
+                console.error('Export failed:', err);
+                alert('Failed to export data');
+            }
         }
+
+        async function clearAllData() {
+            const projectName = projectNames[currentProject] || currentProject;
+            if (confirm(`Are you sure you want to DELETE ALL test cases for ${projectName}? This cannot be undone.`)) {
+                try {
+                    const response = await fetch(`/api/test-cases?projectId=${currentProject}`);
+                    const data = await response.json();
+                    for (const tc of data) {
+                        await fetch(`/api/test-cases/${tc.id}?projectId=${currentProject}`, { method: 'DELETE' });
+                    }
+                    location.reload();
+                } catch (err) {
+                    console.error('Failed to clear data:', err);
+                    alert('Failed to delete all test cases');
+                }
+            }
+        }
+
+        // ============ EXECUTION LOG FUNCTIONS ============
+
+        let currentExecutionTestId = '';
+        let selectedFiles = [];
+
+        async function checkDriveStatus() {
+            try {
+                const response = await fetch('/api/drive-status');
+                const data = await response.json();
+                const banner = document.getElementById('driveStatusBanner');
+                const text = document.getElementById('driveStatusText');
+
+                if (data.configured) {
+                    banner.classList.add('configured');
+                    text.innerHTML = '<i class="fa-solid fa-check-circle"></i> Google Drive connected. Evidence files will be uploaded.';
+                } else {
+                    banner.style.display = 'block';
+                    text.textContent = 'Google Drive not configured. Evidence files will not be uploaded.';
+                }
+            } catch (e) {
+                console.log('Drive status check failed:', e);
+            }
+        }
+
+        function loadTesterName() {
+            const saved = localStorage.getItem('testflow_tester_name');
+            if (saved) {
+                document.getElementById('execTesterName').value = saved;
+            }
+        }
+
+        function openExecutionModal(testCaseId, title) {
+            currentExecutionTestId = testCaseId;
+            document.getElementById('executionTestId').textContent = `${testCaseId} - ${title}`;
+            document.getElementById('executionModal').style.display = 'block';
+
+            document.getElementById('execResult').value = '';
+            document.getElementById('execNotes').value = '';
+            document.getElementById('execEvidence').value = '';
+            document.getElementById('filePreview').innerHTML = '';
+            selectedFiles = [];
+
+            document.querySelectorAll('.result-option').forEach(opt => opt.classList.remove('selected'));
+
+            loadTesterName();
+            checkDriveStatus();
+        }
+
+        function closeExecutionModal() {
+            document.getElementById('executionModal').style.display = 'none';
+            currentExecutionTestId = '';
+        }
+
+        function selectResult(element) {
+            document.querySelectorAll('.result-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('execResult').value = element.dataset.value;
+        }
+
+        document.getElementById('execEvidence').addEventListener('change', function(e) {
+            const preview = document.getElementById('filePreview');
+            preview.innerHTML = '';
+            selectedFiles = Array.from(e.target.files);
+
+            selectedFiles.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'file-preview-item';
+                item.innerHTML = `
+                    <span>${file.name}</span>
+                    <span class="remove-file" onclick="removeFile(${index})">x</span>
+                `;
+                preview.appendChild(item);
+            });
+        });
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            const preview = document.getElementById('filePreview');
+            preview.innerHTML = '';
+            selectedFiles.forEach((file, i) => {
+                const item = document.createElement('div');
+                item.className = 'file-preview-item';
+                item.innerHTML = `
+                    <span>${file.name}</span>
+                    <span class="remove-file" onclick="removeFile(${i})">x</span>
+                `;
+                preview.appendChild(item);
+            });
+        }
+
+        async function submitExecution() {
+            const testerName = document.getElementById('execTesterName').value.trim();
+            const result = document.getElementById('execResult').value;
+            const notes = document.getElementById('execNotes').value.trim();
+
+            if (!testerName) {
+                alert('Please enter your name');
+                return;
+            }
+
+            if (!result) {
+                alert('Please select an execution result');
+                return;
+            }
+
+            localStorage.setItem('testflow_tester_name', testerName);
+
+            const submitBtn = document.getElementById('submitExecBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+
+            try {
+                if (!currentExecutionTestId || !currentProject) {
+                    throw new Error(`Missing required data: testCaseId="${currentExecutionTestId}", projectId="${currentProject}"`);
+                }
+
+                const formData = new FormData();
+                formData.append('testCaseId', currentExecutionTestId);
+                formData.append('projectId', currentProject);
+                formData.append('testerName', testerName);
+                formData.append('result', result);
+                formData.append('notes', notes);
+
+                selectedFiles.forEach(file => {
+                    formData.append('evidence', file);
+                });
+
+                console.log('Submitting execution:', { testCaseId: currentExecutionTestId, projectId: currentProject, testerName, result, filesCount: selectedFiles.length });
+
+                const response = await fetch('/api/executions', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error || `HTTP ${response.status}: Failed to save execution`);
+                }
+
+                const execution = await response.json();
+                console.log('Execution logged:', execution);
+
+                // Update the status in the table
+                const rows = document.querySelectorAll('#testTable tbody tr');
+                rows.forEach(row => {
+                    const idCell = row.cells[1]?.querySelector('.editable-cell');
+                    if (idCell && idCell.innerText === currentExecutionTestId) {
+                        const statusSelect = row.querySelector('.status-select');
+                        if (statusSelect) {
+                            statusSelect.value = result;
+                            statusSelect.setAttribute('data-status', result);
+                        }
+                    }
+                });
+
+                closeExecutionModal();
+                alert('Execution logged successfully!');
+
+            } catch (err) {
+                console.error('Failed to log execution:', err);
+                alert('Failed to log execution: ' + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Log Execution';
+            }
+        }
+
+        // ============ EXECUTION HISTORY FUNCTIONS ============
+
+        function openHistoryModal(testCaseId) {
+            document.getElementById('historyTestId').textContent = testCaseId;
+            document.getElementById('historyModal').style.display = 'block';
+            loadExecutionHistory(testCaseId);
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('historyModal').style.display = 'none';
+        }
+
+        async function loadExecutionHistory(testCaseId) {
+            const container = document.getElementById('executionHistoryList');
+            container.innerHTML = '<p style="color: #5f6368; text-align: center; padding: 20px;">Loading...</p>';
+
+            try {
+                const response = await fetch(`/api/executions?testCaseId=${testCaseId}&projectId=${currentProject}`);
+                const data = await response.json();
+
+                if (data.executions.length === 0) {
+                    container.innerHTML = '<p style="color: #5f6368; text-align: center; padding: 20px;">No execution history found.</p>';
+                    return;
+                }
+
+                container.innerHTML = data.executions.map(exec => {
+                    const date = new Date(exec.executedAt).toLocaleString();
+                    const evidenceHtml = exec.evidence && exec.evidence.length > 0
+                        ? `<div class="execution-evidence">
+                            ${exec.evidence.map(e =>
+                                `<a href="${e.driveUrl}" target="_blank" class="evidence-link">
+                                    ${e.fileName}
+                                </a>`
+                            ).join('')}
+                           </div>`
+                        : '';
+
+                    return `
+                        <div class="execution-item">
+                            <div class="execution-item-header">
+                                <span class="execution-result ${exec.result}">${exec.result}</span>
+                                <span class="execution-meta">${date}</span>
+                            </div>
+                            <div class="execution-meta">Tested by: <strong>${exec.testerName}</strong></div>
+                            ${exec.notes ? `<div class="execution-notes">${exec.notes}</div>` : ''}
+                            ${evidenceHtml}
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error('Failed to load history:', err);
+                container.innerHTML = '<p style="color: #ea4335; text-align: center; padding: 20px;">Failed to load history.</p>';
+            }
+        }
+
+        // Close modals on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeExecutionModal();
+                closeHistoryModal();
+                closeModal();
+            }
+        });
+
+        // Close modals on backdrop click
+        document.getElementById('executionModal').addEventListener('click', function(e) {
+            if (e.target === this) closeExecutionModal();
+        });
+        document.getElementById('historyModal').addEventListener('click', function(e) {
+            if (e.target === this) closeHistoryModal();
+        });
+        document.getElementById('addModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
     </script>
 </body>
 

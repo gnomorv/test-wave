@@ -1,0 +1,44 @@
+[
+  {
+    "id": "TC-001",
+    "projectId": "default",
+    "title": "Verify user login with valid credentials",
+    "feature": "Account",
+    "priority": "P0",
+    "preconditions": "User account exists with valid credentials",
+    "testData": "Username: testuser@example.com\nPassword: ValidPass123",
+    "steps": "1. Navigate to login page\n2. Enter valid username\n3. Enter valid password\n4. Click Login button",
+    "expected": "User is successfully logged in and redirected to dashboard",
+    "actual": "",
+    "status": "Not Run",
+    "notes": ""
+  },
+  {
+    "id": "TC-002",
+    "projectId": "default",
+    "title": "Verify error message for invalid password",
+    "feature": "Account",
+    "priority": "P1",
+    "preconditions": "User account exists",
+    "testData": "Username: testuser@example.com\nPassword: WrongPass",
+    "steps": "1. Navigate to login page\n2. Enter valid username\n3. Enter invalid password\n4. Click Login button",
+    "expected": "Error message displays: 'Invalid credentials'",
+    "actual": "",
+    "status": "Not Run",
+    "notes": ""
+  },
+  {
+    "id": "TC-003",
+    "projectId": "default",
+    "title": "Verify product can be added to cart",
+    "feature": "Shopping",
+    "priority": "P0",
+    "preconditions": "User is logged in\nProduct is in stock",
+    "testData": "Product ID: PROD-001\nQuantity: 1",
+    "steps": "1. Navigate to product page\n2. Select quantity\n3. Click 'Add to Cart' button\n4. Verify cart icon updates",
+    "expected": "Product is added to cart and cart count increases by 1",
+    "actual": "",
+    "status": "Not Run",
+    "notes": ""
+  }
+]
